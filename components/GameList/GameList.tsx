@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Game } from '@/lib/types';
-import { loadAllGames, deleteGame } from '@/lib/storage';
+import { loadAllGames, deleteGame, saveGame } from '@/lib/storage';
+import { generateId } from '@/lib/utils';
 import { GameCard } from './GameCard';
 import { EmptyState } from './EmptyState';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,28 @@ export function GameList() {
 
   const handleDelete = useCallback((id: string) => {
     deleteGame(id);
+    setGames(loadAllGames());
+  }, []);
+
+  const handleClone = useCallback((id: string) => {
+    const source = loadAllGames().find((g) => g.id === id);
+    if (!source) return;
+    const now = Date.now();
+    const cloned: Game = {
+      ...source,
+      id: generateId(),
+      name: `${source.name} (copy)`,
+      status: 'paused',
+      createdAt: now,
+      updatedAt: now,
+      state: {
+        currentLevelIndex: 0,
+        remainingSeconds: source.config.schedule[0].durationSeconds,
+        isPaused: true,
+        lastTickAt: null,
+      },
+    };
+    saveGame(cloned);
     setGames(loadAllGames());
   }, []);
 
@@ -43,7 +66,7 @@ export function GameList() {
       ) : (
         <div className="flex flex-col gap-3">
           {sorted.map((game) => (
-            <GameCard key={game.id} game={game} onDelete={handleDelete} />
+            <GameCard key={game.id} game={game} onDelete={handleDelete} onClone={handleClone} />
           ))}
         </div>
       )}
