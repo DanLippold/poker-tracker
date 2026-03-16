@@ -19,16 +19,28 @@ export function BlindSchedulePreview({ schedule }: BlindSchedulePreviewProps) {
           </tr>
         </thead>
         <tbody>
-          {schedule.map((lvl) => (
-            <tr key={lvl.level} className="border-t border-[var(--color-border)]">
-              <td className="py-1.5 pr-4 text-[var(--color-muted)]">{lvl.level}</td>
-              <td className="py-1.5 pr-4 font-mono">{lvl.smallBlind}</td>
-              <td className="py-1.5 pr-4 font-mono text-[var(--color-accent-gold)]">{lvl.bigBlind}</td>
-              <td className="py-1.5 font-mono text-[var(--color-muted)]">
-                {lvl.ante > 0 ? lvl.ante : '—'}
-              </td>
-            </tr>
-          ))}
+          {schedule.map((lvl, i) =>
+            lvl.isBreak ? (
+              <tr key={`break-${i}`} className="border-t border-[var(--color-border)]">
+                <td
+                  colSpan={4}
+                  className="py-1.5 text-center text-xs font-medium uppercase tracking-widest"
+                  style={{ color: 'var(--color-accent)', background: 'rgba(46,160,67,0.08)' }}
+                >
+                  ☕ Break — {Math.round(lvl.durationSeconds / 60)} min
+                </td>
+              </tr>
+            ) : (
+              <tr key={lvl.level} className="border-t border-[var(--color-border)]">
+                <td className="py-1.5 pr-4 text-[var(--color-muted)]">{lvl.level}</td>
+                <td className="py-1.5 pr-4 font-mono">{lvl.smallBlind}</td>
+                <td className="py-1.5 pr-4 font-mono text-[var(--color-accent-gold)]">{lvl.bigBlind}</td>
+                <td className="py-1.5 font-mono text-[var(--color-muted)]">
+                  {lvl.ante > 0 ? lvl.ante : '—'}
+                </td>
+              </tr>
+            )
+          )}
         </tbody>
       </table>
     </div>

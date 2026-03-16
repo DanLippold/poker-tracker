@@ -45,10 +45,21 @@ export function useSound() {
     playTone(ctx, 440, ctx.currentTime, 0.15, 0.2);
   }, []);
 
+  // Cheerful ascending arpeggio: G5→A5→B5→C6
+  const playFiveMinuteWarning = useCallback(() => {
+    const ctx = getCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    playTone(ctx, 784,  now + 0.0, 0.08, 0.3);
+    playTone(ctx, 880,  now + 0.1, 0.08, 0.3);
+    playTone(ctx, 988,  now + 0.2, 0.08, 0.3);
+    playTone(ctx, 1047, now + 0.3, 0.12, 0.35);
+  }, []);
+
   // Call this on first user gesture to initialize AudioContext
   const initAudio = useCallback(() => {
     getCtx();
   }, []);
 
-  return { playLevelUp, playWarning, initAudio };
+  return { playLevelUp, playWarning, playFiveMinuteWarning, initAudio };
 }

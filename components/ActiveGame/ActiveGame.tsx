@@ -25,7 +25,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const [mounted, setMounted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showFiveMinWarning, setShowFiveMinWarning] = useState(false);
-  const { playLevelUp, playWarning, initAudio } = useSound();
+  const { playLevelUp, playWarning, playFiveMinuteWarning, initAudio } = useSound();
 
   useEffect(() => {
     const g = loadGame(id);
@@ -148,8 +148,9 @@ export function ActiveGame({ id }: ActiveGameProps) {
   }, [persist]);
 
   const handleFiveMinWarning = useCallback(() => {
+    playFiveMinuteWarning();
     setShowFiveMinWarning(true);
-  }, []);
+  }, [playFiveMinuteWarning]);
 
   function handleExportSettings() {
     if (!game) return;
@@ -160,6 +161,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       chipDenominations: game.config.chipDenominations,
       chipColors: game.config.chipColors,
       blindDurationMinutes: game.config.blindDurationMinutes,
+      breakDurationMinutes: game.config.breakDurationMinutes,
       anteStartLevel: game.config.anteStartLevel,
       schedule: game.config.schedule,
     };

@@ -4,6 +4,7 @@ export interface BlindLevel {
   bigBlind: number;
   ante: number;
   durationSeconds: number;
+  isBreak?: boolean;
 }
 
 export interface GameConfig {
@@ -11,6 +12,7 @@ export interface GameConfig {
   chipDenominations: number[];
   chipColors?: string[];
   blindDurationMinutes: number;
+  breakDurationMinutes?: number;
   anteStartLevel: number | null;
   schedule: BlindLevel[];
 }
@@ -38,5 +40,6 @@ export interface GameFormValues {
   chipDenominations: number[];
   chipColors: string[];
   blindDurationMinutes: number;
+  breakDurationMinutes: number;
   anteStartLevel: number | null;
 }

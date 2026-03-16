@@ -39,6 +39,9 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   const [blindDurationMinutes, setBlindDurationMinutes] = useState(
     initialConfig?.blindDurationMinutes ?? 15,
   );
+  const [breakDurationMinutes, setBreakDurationMinutes] = useState(
+    initialConfig?.breakDurationMinutes ?? 5,
+  );
   const [anteEnabled, setAnteEnabled] = useState(
     initialConfig ? initialConfig.anteStartLevel !== null : false,
   );
@@ -72,6 +75,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
     chipDenominations,
     chipColors,
     blindDurationMinutes,
+    breakDurationMinutes,
     anteStartLevel: anteEnabled ? anteStartLevel : null,
   };
 
@@ -83,7 +87,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
       return [];
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startingChips, chipDenominations, blindDurationMinutes, anteEnabled, anteStartLevel]);
+  }, [startingChips, chipDenominations, blindDurationMinutes, breakDurationMinutes, anteEnabled, anteStartLevel]);
 
   const displaySchedule = customSchedule ?? autoSchedule;
 
@@ -131,6 +135,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
         chipDenominations,
         chipColors,
         blindDurationMinutes,
+        breakDurationMinutes,
         anteStartLevel: anteEnabled ? anteStartLevel : null,
         schedule,
       },
@@ -156,6 +161,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
       chipDenominations,
       chipColors,
       blindDurationMinutes,
+      breakDurationMinutes,
       anteStartLevel: anteEnabled ? anteStartLevel : null,
       schedule: displaySchedule,
     };
@@ -188,6 +194,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
           );
         }
         if (typeof parsed.blindDurationMinutes === 'number') setBlindDurationMinutes(parsed.blindDurationMinutes);
+        if (typeof parsed.breakDurationMinutes === 'number') setBreakDurationMinutes(parsed.breakDurationMinutes);
         if (parsed.anteStartLevel !== undefined) {
           setAnteEnabled(parsed.anteStartLevel !== null);
           if (parsed.anteStartLevel !== null) setAnteStartLevel(parsed.anteStartLevel);
@@ -288,6 +295,21 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
           />
           {errors.blindDurationMinutes && <p className="text-[var(--color-danger)] text-xs mt-1">{errors.blindDurationMinutes}</p>}
+        </div>
+
+        {/* Break Duration */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Break Duration (minutes)</label>
+          <input
+            type="number"
+            value={breakDurationMinutes}
+            onChange={(e) => handleSettingsChange(() => setBreakDurationMinutes(Number(e.target.value)))}
+            onBlur={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) setBreakDurationMinutes(v); }}
+            min="1"
+            max="60"
+            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
+          />
+          <p className="text-[var(--color-muted)] text-xs mt-1">A break is automatically added after every 3 rounds</p>
         </div>
 
         {/* Antes */}
