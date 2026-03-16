@@ -9,6 +9,7 @@ export interface BlindLevel {
 export interface GameConfig {
   startingChips: number;
   chipDenominations: number[];
+  chipColors?: string[];
   blindDurationMinutes: number;
   anteStartLevel: number | null;
   schedule: BlindLevel[];
@@ -35,6 +36,7 @@ export interface GameFormValues {
   name: string;
   startingChips: number;
   chipDenominations: number[];
+  chipColors: string[];
   blindDurationMinutes: number;
   anteStartLevel: number | null;
 }

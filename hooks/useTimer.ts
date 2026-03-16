@@ -8,13 +8,15 @@ interface UseTimerOptions {
   onTick: (newRemaining: number) => void;
   onLevelUp: () => void;
   onWarning: () => void;
+  onFiveMinuteWarning?: () => void;
 }
 
-export function useTimer({ remainingSeconds, isPaused, onTick, onLevelUp, onWarning }: UseTimerOptions) {
+export function useTimer({ remainingSeconds, isPaused, onTick, onLevelUp, onWarning, onFiveMinuteWarning }: UseTimerOptions) {
   const lastTickAtRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const remainingRef = useRef(remainingSeconds);
   const warningFiredRef = useRef(false);
+  const fiveMinWarnFiredRef = useRef(false);
   const isPausedRef = useRef(isPaused);
 
   // Keep refs in sync with props
@@ -36,6 +38,12 @@ export function useTimer({ remainingSeconds, isPaused, onTick, onLevelUp, onWarn
     lastTickAtRef.current = now;
     const newRemaining = Math.max(0, remainingRef.current - elapsed);
 
+    // Five-minute warning
+    if (!fiveMinWarnFiredRef.current && newRemaining <= 300 && remainingRef.current > 300) {
+      fiveMinWarnFiredRef.current = true;
+      onFiveMinuteWarning?.();
+    }
+
     // Warning beep at 30s
     if (!warningFiredRef.current && newRemaining <= 30 && newRemaining > 0) {
       warningFiredRef.current = true;
@@ -47,8 +55,9 @@ export function useTimer({ remainingSeconds, isPaused, onTick, onLevelUp, onWarn
     if (newRemaining === 0) {
       onLevelUp();
       warningFiredRef.current = false;
+      fiveMinWarnFiredRef.current = false;
     }
-  }, [onTick, onLevelUp, onWarning]);
+  }, [onTick, onLevelUp, onWarning, onFiveMinuteWarning]);
 
   // Start/stop interval based on paused state
   useEffect(() => {
@@ -83,10 +92,13 @@ export function useTimer({ remainingSeconds, isPaused, onTick, onLevelUp, onWarn
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [tick]);
 
-  // Reset warning flag when remaining resets (new level)
+  // Reset warning flags when remaining resets (new level)
   useEffect(() => {
     if (remainingSeconds > 30) {
       warningFiredRef.current = false;
+    }
+    if (remainingSeconds > 300) {
+      fiveMinWarnFiredRef.current = false;
     }
   }, [remainingSeconds]);
 }

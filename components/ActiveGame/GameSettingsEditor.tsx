@@ -74,7 +74,11 @@ export function GameSettingsEditor({ game, onSave, onClose }: GameSettingsEditor
           {/* Round editor */}
           <div>
             <label className="block text-sm font-medium mb-2">Rounds</label>
-            <RoundEditorTable schedule={schedule} onChange={setSchedule} />
+            <RoundEditorTable
+              schedule={schedule}
+              onChange={setSchedule}
+              denominations={game.config.chipDenominations}
+            />
           </div>
         </div>
 

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Game, GameFormValues, BlindLevel, GameConfig } from '@/lib/types';
 import { generateBlindSchedule } from '@/lib/blindSchedule';
-import { saveGame, loadDefaultDenominations, saveDefaultDenominations } from '@/lib/storage';
+import { saveGame, loadDefaultDenominations, saveDefaultDenominations, loadDefaultColors, saveDefaultColors } from '@/lib/storage';
 import { generateId } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -12,7 +12,12 @@ import { ChipDenominationsInput } from './ChipDenominationsInput';
 import { BlindSchedulePreview } from './BlindSchedulePreview';
 import { RoundEditorTable } from './RoundEditorTable';
 
-const DEFAULT_DENOMS = [5, 10, 25, 100, 500];
+const DEFAULT_DENOMS = [25, 50, 100, 500];
+const DEFAULT_COLORS = ['white', 'red', 'green', 'black', 'blue'];
+
+function getDefaultColors(denoms: number[]): string[] {
+  return denoms.map((_, i) => DEFAULT_COLORS[i] ?? DEFAULT_COLORS[DEFAULT_COLORS.length - 1]);
+}
 
 interface GameFormProps {
   /** When provided, form operates in "import from config" mode with pre-filled values */
@@ -27,6 +32,9 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   const [startingChips, setStartingChips] = useState(initialConfig?.startingChips ?? 5000);
   const [chipDenominations, setChipDenominations] = useState<number[]>(
     initialConfig?.chipDenominations ?? DEFAULT_DENOMS,
+  );
+  const [chipColors, setChipColors] = useState<string[]>(
+    initialConfig?.chipColors ?? getDefaultColors(initialConfig?.chipDenominations ?? DEFAULT_DENOMS),
   );
   const [blindDurationMinutes, setBlindDurationMinutes] = useState(
     initialConfig?.blindDurationMinutes ?? 15,
@@ -43,17 +51,26 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [importError, setImportError] = useState('');
 
-  // Load saved denominations from localStorage on first render (only when no initialConfig)
+  // Load saved denominations and colors from localStorage on first render (only when no initialConfig)
   useEffect(() => {
     if (initialConfig) return;
-    const saved = loadDefaultDenominations();
-    if (saved.length > 0) setChipDenominations(saved);
+    const savedDenoms = loadDefaultDenominations();
+    const savedColors = loadDefaultColors();
+    if (savedDenoms.length > 0) {
+      setChipDenominations(savedDenoms);
+      if (savedColors.length > 0) {
+        setChipColors(savedColors);
+      } else {
+        setChipColors(getDefaultColors(savedDenoms));
+      }
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formValues: GameFormValues = {
     name,
     startingChips,
     chipDenominations,
+    chipColors,
     blindDurationMinutes,
     anteStartLevel: anteEnabled ? anteStartLevel : null,
   };
@@ -74,6 +91,13 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   function handleSettingsChange(setter: () => void) {
     setter();
     setCustomSchedule(null);
+  }
+
+  function handleDenominationsChange(newDenoms: number[], newColors: string[]) {
+    handleSettingsChange(() => {
+      setChipDenominations(newDenoms);
+      setChipColors(newColors);
+    });
   }
 
   function validate(): boolean {
@@ -105,6 +129,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
       config: {
         startingChips,
         chipDenominations,
+        chipColors,
         blindDurationMinutes,
         anteStartLevel: anteEnabled ? anteStartLevel : null,
         schedule,
@@ -119,6 +144,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
 
     saveGame(game);
     saveDefaultDenominations(chipDenominations);
+    saveDefaultColors(chipColors);
     router.push(`/game/${game.id}`);
   }
 
@@ -128,6 +154,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
       name: name.trim() || 'Poker Game',
       startingChips,
       chipDenominations,
+      chipColors,
       blindDurationMinutes,
       anteStartLevel: anteEnabled ? anteStartLevel : null,
       schedule: displaySchedule,
@@ -152,7 +179,14 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
         if (typeof parsed.startingChips !== 'number') throw new Error('Invalid format');
         if (parsed.name) setName(parsed.name);
         if (typeof parsed.startingChips === 'number') setStartingChips(parsed.startingChips);
-        if (Array.isArray(parsed.chipDenominations)) setChipDenominations(parsed.chipDenominations);
+        if (Array.isArray(parsed.chipDenominations)) {
+          setChipDenominations(parsed.chipDenominations);
+          setChipColors(
+            Array.isArray(parsed.chipColors)
+              ? parsed.chipColors
+              : getDefaultColors(parsed.chipDenominations),
+          );
+        }
         if (typeof parsed.blindDurationMinutes === 'number') setBlindDurationMinutes(parsed.blindDurationMinutes);
         if (parsed.anteStartLevel !== undefined) {
           setAnteEnabled(parsed.anteStartLevel !== null);
@@ -222,6 +256,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             type="number"
             value={startingChips}
             onChange={(e) => handleSettingsChange(() => setStartingChips(Number(e.target.value)))}
+            onBlur={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) setStartingChips(v); }}
             min="100"
             step="100"
             className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
@@ -234,7 +269,8 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
           <label className="block text-sm font-medium mb-2">Chip Denominations</label>
           <ChipDenominationsInput
             value={chipDenominations}
-            onChange={(v) => handleSettingsChange(() => setChipDenominations(v))}
+            colors={chipColors}
+            onChange={handleDenominationsChange}
           />
           {errors.chipDenominations && <p className="text-[var(--color-danger)] text-xs mt-1">{errors.chipDenominations}</p>}
         </div>
@@ -246,6 +282,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             type="number"
             value={blindDurationMinutes}
             onChange={(e) => handleSettingsChange(() => setBlindDurationMinutes(Number(e.target.value)))}
+            onBlur={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) setBlindDurationMinutes(v); }}
             min="1"
             max="120"
             className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
@@ -271,6 +308,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
                 type="number"
                 value={anteStartLevel}
                 onChange={(e) => handleSettingsChange(() => setAnteStartLevel(Number(e.target.value)))}
+                onBlur={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) setAnteStartLevel(v); }}
                 min="1"
                 max={displaySchedule.length || 20}
                 className="w-24 bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--color-accent)]"
@@ -318,7 +356,11 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             {showSchedule && (
               <div className="mt-3">
                 {editingSchedule && customSchedule ? (
-                  <RoundEditorTable schedule={customSchedule} onChange={setCustomSchedule} />
+                  <RoundEditorTable
+                    schedule={customSchedule}
+                    onChange={setCustomSchedule}
+                    denominations={chipDenominations}
+                  />
                 ) : (
                   <BlindSchedulePreview schedule={displaySchedule} />
                 )}

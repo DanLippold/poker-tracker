@@ -1,6 +1,6 @@
 import { BlindLevel, GameFormValues } from './types';
 
-function snapToCleanValue(raw: number, denoms: number[]): number {
+export function snapToCleanValue(raw: number, denoms: number[]): number {
   // Find largest denomination <= raw/2 to use as rounding unit
   const unit = [...denoms].reverse().find((d) => d <= raw / 2) ?? denoms[0];
   return Math.ceil(raw / unit) * unit;
@@ -9,6 +9,7 @@ function snapToCleanValue(raw: number, denoms: number[]): number {
 export function generateBlindSchedule(values: GameFormValues): BlindLevel[] {
   const { startingChips, chipDenominations, blindDurationMinutes, anteStartLevel } = values;
   const sortedDenoms = [...chipDenominations].sort((a, b) => a - b);
+  const minDenom = sortedDenoms[0];
   const durationSeconds = blindDurationMinutes * 60;
 
   // Anchor BB at ~1% of starting chips, snapped to clean denomination
@@ -29,7 +30,14 @@ export function generateBlindSchedule(values: GameFormValues): BlindLevel[] {
 
     const sb = bb / 2;
     const levelNumber = levels.length + 1;
-    const ante = anteStartLevel !== null && levelNumber >= anteStartLevel ? bb : 0;
+
+    let ante = 0;
+    if (anteStartLevel !== null && levelNumber >= anteStartLevel) {
+      // Antes start at minDenom, increase by minDenom per level, capped at BB
+      const anteOffset = levelNumber - anteStartLevel; // 0-based
+      const rawAnte = minDenom * (anteOffset + 1);
+      ante = Math.min(rawAnte, bb);
+    }
 
     levels.push({ level: levelNumber, smallBlind: sb, bigBlind: bb, ante, durationSeconds });
 

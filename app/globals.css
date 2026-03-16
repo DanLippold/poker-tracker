@@ -22,3 +22,62 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+/* ── Five-minute warning animations ── */
+
+@keyframes warning-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes warning-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+
+@keyframes chip-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33%       { transform: translateY(-10px) rotate(-6deg); }
+  66%       { transform: translateY(-4px) rotate(4deg); }
+}
+
+@keyframes chip-float-2 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33%       { transform: translateY(-6px) rotate(5deg); }
+  66%       { transform: translateY(-12px) rotate(-4deg); }
+}
+
+@keyframes chip-float-3 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-8px) rotate(-3deg); }
+}
+
+@keyframes card-deal {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotate(var(--card-start-rot, 0deg)) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--card-end-rot, 0deg)) scale(1);
+  }
+}
+
+@keyframes gold-pulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(212, 168, 83, 0.4); }
+  50%       { text-shadow: 0 0 24px rgba(212, 168, 83, 0.9), 0 0 40px rgba(212, 168, 83, 0.4); }
+}
+
+.warning-panel-enter {
+  animation: warning-slide-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.warning-panel-exit {
+  animation: warning-fade-out 0.5s ease-in forwards;
+}
