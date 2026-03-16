@@ -71,6 +71,12 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   );
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [importError, setImportError] = useState('');
+  const [namePlaceholder, setNamePlaceholder] = useState('');
+
+  // Compute the name placeholder client-side to avoid SSR timezone mismatch
+  useEffect(() => {
+    setNamePlaceholder(getDynamicPlaceholder());
+  }, []);
 
   // Load saved denominations and colors from localStorage on first render (only when no initialConfig)
   useEffect(() => {
@@ -267,7 +273,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={getDynamicPlaceholder()}
+            placeholder={namePlaceholder}
             className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
           />
         </div>
