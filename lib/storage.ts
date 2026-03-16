@@ -2,6 +2,7 @@ import { Game } from './types';
 
 const STORAGE_KEY = 'poker-tracker-games';
 const DENOMS_KEY = 'poker-tracker-denoms';
+const COLORS_KEY = 'poker-tracker-colors';
 
 interface StorageData {
   version: number;
@@ -70,6 +71,26 @@ export function loadDefaultDenominations(): number[] {
 export function saveDefaultDenominations(denoms: number[]): void {
   try {
     localStorage.setItem(DENOMS_KEY, JSON.stringify(denoms));
+  } catch {
+    // ignore
+  }
+}
+
+export function loadDefaultColors(): string[] {
+  try {
+    const raw = localStorage.getItem(COLORS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+export function saveDefaultColors(colors: string[]): void {
+  try {
+    localStorage.setItem(COLORS_KEY, JSON.stringify(colors));
   } catch {
     // ignore
   }

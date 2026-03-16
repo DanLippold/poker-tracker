@@ -12,6 +12,8 @@ import { CountdownTimer } from './CountdownTimer';
 import { NextLevelPreview } from './NextLevelPreview';
 import { TimerControls } from './TimerControls';
 import { GameSettingsEditor } from './GameSettingsEditor';
+import { ChipDisplay } from './ChipDisplay';
+import { FiveMinuteWarning } from './FiveMinuteWarning';
 
 interface ActiveGameProps {
   id: string;
@@ -22,6 +24,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const [game, setGame] = useState<Game | null>(null);
   const [mounted, setMounted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showFiveMinWarning, setShowFiveMinWarning] = useState(false);
   const { playLevelUp, playWarning, initAudio } = useSound();
 
   useEffect(() => {
@@ -144,6 +147,10 @@ export function ActiveGame({ id }: ActiveGameProps) {
     setShowSettings(false);
   }, [persist]);
 
+  const handleFiveMinWarning = useCallback(() => {
+    setShowFiveMinWarning(true);
+  }, []);
+
   function handleExportSettings() {
     if (!game) return;
     const payload = {
@@ -151,6 +158,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       name: game.name,
       startingChips: game.config.startingChips,
       chipDenominations: game.config.chipDenominations,
+      chipColors: game.config.chipColors,
       blindDurationMinutes: game.config.blindDurationMinutes,
       anteStartLevel: game.config.anteStartLevel,
       schedule: game.config.schedule,
@@ -170,6 +178,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
     onTick: handleTick,
     onLevelUp: handleLevelUp,
     onWarning: playWarning,
+    onFiveMinuteWarning: handleFiveMinWarning,
   });
 
   if (!mounted || !game) return null;
@@ -179,6 +188,8 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const currentLevel = schedule[currentLevelIndex];
   const nextLevel = schedule[currentLevelIndex + 1] ?? null;
   const isCompleted = game.status === 'completed';
+  const chipDenominations = game.config.chipDenominations;
+  const chipColors = game.config.chipColors ?? [];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -223,6 +234,8 @@ export function ActiveGame({ id }: ActiveGameProps) {
           <>
             {currentLevel && <BlindDisplay level={currentLevel} />}
 
+            <ChipDisplay denominations={chipDenominations} colors={chipColors} />
+
             <CountdownTimer remainingSeconds={remainingSeconds} isPaused={isPaused} />
 
             <TimerControls
@@ -249,6 +262,11 @@ export function ActiveGame({ id }: ActiveGameProps) {
           onSave={handleSettingsSave}
           onClose={() => setShowSettings(false)}
         />
+      )}
+
+      {/* Five-minute warning overlay */}
+      {showFiveMinWarning && (
+        <FiveMinuteWarning onDismiss={() => setShowFiveMinWarning(false)} />
       )}
     </div>
   );
