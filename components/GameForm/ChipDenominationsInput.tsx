@@ -39,6 +39,7 @@ interface ChipDenominationsInputProps {
 
 export function ChipDenominationsInput({ value, colors, onChange }: ChipDenominationsInputProps) {
   const [input, setInput] = useState('');
+  const [pendingRemove, setPendingRemove] = useState<number | null>(null);
 
   function cycleColor(index: number) {
     const current = colors[index] ?? 'white';
@@ -67,9 +68,14 @@ export function ChipDenominationsInput({ value, colors, onChange }: ChipDenomina
   }
 
   function remove(denom: number) {
+    if (pendingRemove !== denom) {
+      setPendingRemove(denom);
+      return;
+    }
     const idx = value.indexOf(denom);
     const newDenoms = value.filter((d) => d !== denom);
     const newColors = colors.filter((_, i) => i !== idx);
+    setPendingRemove(null);
     onChange(newDenoms, newColors);
   }
 
@@ -88,14 +94,35 @@ export function ChipDenominationsInput({ value, colors, onChange }: ChipDenomina
               >
                 {denom >= 1000 ? `${denom / 1000}k` : denom}
               </div>
-              <button
-                type="button"
-                onClick={() => remove(denom)}
-                className="text-[var(--color-muted)] hover:text-[var(--color-danger)] text-xs leading-none cursor-pointer"
-                aria-label={`Remove ${denom}`}
-              >
-                ×
-              </button>
+              {pendingRemove === denom ? (
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => remove(denom)}
+                    className="text-[var(--color-danger)] text-xs font-semibold leading-none cursor-pointer"
+                    aria-label={`Confirm remove ${denom}`}
+                  >
+                    Remove?
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPendingRemove(null)}
+                    className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] text-xs leading-none cursor-pointer"
+                    aria-label="Cancel"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => remove(denom)}
+                  className="text-[var(--color-muted)] hover:text-[var(--color-danger)] text-xs leading-none cursor-pointer"
+                  aria-label={`Remove ${denom}`}
+                >
+                  ×
+                </button>
+              )}
             </div>
           );
         })}
