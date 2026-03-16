@@ -15,6 +15,24 @@ import { RoundEditorTable } from './RoundEditorTable';
 const DEFAULT_DENOMS = [25, 50, 100, 500];
 const DEFAULT_COLORS = ['white', 'red', 'green', 'black', 'blue'];
 
+function getDynamicPlaceholder(): string {
+  const now = new Date();
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const day = days[now.getDay()];
+  const hour = now.getHours();
+  let timeOfDay: string;
+  if (hour >= 5 && hour < 12) {
+    timeOfDay = 'Morning';
+  } else if (hour >= 12 && hour < 17) {
+    timeOfDay = 'Afternoon';
+  } else if (hour >= 17 && hour < 21) {
+    timeOfDay = 'Evening';
+  } else {
+    timeOfDay = 'Night';
+  }
+  return `${day} ${timeOfDay} Poker`;
+}
+
 function getDefaultColors(denoms: number[]): string[] {
   return denoms.map((_, i) => DEFAULT_COLORS[i] ?? DEFAULT_COLORS[DEFAULT_COLORS.length - 1]);
 }
@@ -106,7 +124,6 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
 
   function validate(): boolean {
     const errs: Partial<Record<string, string>> = {};
-    if (!name.trim()) errs.name = 'Name is required';
     if (startingChips <= 0) errs.startingChips = 'Must be greater than 0';
     if (chipDenominations.length < 1) errs.chipDenominations = 'Add at least one denomination';
     if (blindDurationMinutes < 1 || blindDurationMinutes > 120) errs.blindDurationMinutes = '1–120 minutes';
@@ -126,7 +143,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
     const schedule = displaySchedule;
     const game: Game = {
       id: generateId(),
-      name: name.trim(),
+      name: name.trim() || getDynamicPlaceholder(),
       status: 'paused',
       createdAt: now,
       updatedAt: now,
@@ -250,10 +267,9 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Friday Night Poker"
+            placeholder={getDynamicPlaceholder()}
             className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
           />
-          {errors.name && <p className="text-[var(--color-danger)] text-xs mt-1">{errors.name}</p>}
         </div>
 
         {/* Starting Chips */}
