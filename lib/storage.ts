@@ -1,6 +1,7 @@
 import { Game } from './types';
 
 const STORAGE_KEY = 'poker-tracker-games';
+const DENOMS_KEY = 'poker-tracker-denoms';
 
 interface StorageData {
   version: number;
@@ -52,4 +53,24 @@ export function deleteGame(id: string): void {
   const data = readStorage();
   data.games = data.games.filter((g) => g.id !== id);
   writeStorage(data);
+}
+
+export function loadDefaultDenominations(): number[] {
+  try {
+    const raw = localStorage.getItem(DENOMS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+export function saveDefaultDenominations(denoms: number[]): void {
+  try {
+    localStorage.setItem(DENOMS_KEY, JSON.stringify(denoms));
+  } catch {
+    // ignore
+  }
 }

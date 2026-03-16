@@ -11,6 +11,7 @@ import { BlindDisplay } from './BlindDisplay';
 import { CountdownTimer } from './CountdownTimer';
 import { NextLevelPreview } from './NextLevelPreview';
 import { TimerControls } from './TimerControls';
+import { GameSettingsEditor } from './GameSettingsEditor';
 
 interface ActiveGameProps {
   id: string;
@@ -20,6 +21,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const router = useRouter();
   const [game, setGame] = useState<Game | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const { playLevelUp, playWarning, initAudio } = useSound();
 
   useEffect(() => {
@@ -137,6 +139,31 @@ export function ActiveGame({ id }: ActiveGameProps) {
     });
   }, []);
 
+  const handleSettingsSave = useCallback((updated: Game) => {
+    persist(updated);
+    setShowSettings(false);
+  }, [persist]);
+
+  function handleExportSettings() {
+    if (!game) return;
+    const payload = {
+      version: 1,
+      name: game.name,
+      startingChips: game.config.startingChips,
+      chipDenominations: game.config.chipDenominations,
+      blindDurationMinutes: game.config.blindDurationMinutes,
+      anteStartLevel: game.config.anteStartLevel,
+      schedule: game.config.schedule,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${game.name.replace(/\s+/g, '-').toLowerCase()}-settings.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   useTimer({
     remainingSeconds: game?.state.remainingSeconds ?? 0,
     isPaused: game?.state.isPaused ?? true,
@@ -161,7 +188,22 @@ export function ActiveGame({ id }: ActiveGameProps) {
           ← Games
         </Link>
         <h1 className="text-sm font-medium text-[var(--color-muted)]">{game.name}</h1>
-        <div className="w-16" />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExportSettings}
+            className="text-xs text-[var(--color-muted)] hover:text-[var(--color-foreground)] cursor-pointer"
+            title="Export settings as JSON"
+          >
+            Export
+          </button>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="text-xs text-[var(--color-muted)] hover:text-[var(--color-foreground)] cursor-pointer"
+            title="Edit game settings"
+          >
+            Settings
+          </button>
+        </div>
       </header>
 
       {/* Main content */}
@@ -199,6 +241,15 @@ export function ActiveGame({ id }: ActiveGameProps) {
           </>
         )}
       </main>
+
+      {/* Settings editor modal */}
+      {showSettings && (
+        <GameSettingsEditor
+          game={game}
+          onSave={handleSettingsSave}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 }

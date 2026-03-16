@@ -11,9 +11,10 @@ import { formatTime } from '@/lib/utils';
 interface GameCardProps {
   game: Game;
   onDelete: (id: string) => void;
+  onClone: (id: string) => void;
 }
 
-export function GameCard({ game, onDelete }: GameCardProps) {
+export function GameCard({ game, onDelete, onClone }: GameCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const currentLevel = game.config.schedule[game.state.currentLevelIndex];
   const levelLabel = currentLevel
@@ -49,6 +50,9 @@ export function GameCard({ game, onDelete }: GameCardProps) {
             </Button>
           </Link>
         )}
+        <Button variant="ghost" size="sm" onClick={() => onClone(game.id)} title="Clone game">
+          Clone
+        </Button>
         {confirmDelete ? (
           <div className="flex items-center gap-1">
             <Button variant="danger" size="sm" onClick={() => onDelete(game.id)}>
