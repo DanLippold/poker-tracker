@@ -81,7 +81,7 @@ export function ChipDenominationsInput({ value, colors, onChange }: ChipDenomina
 
   return (
     <div>
-      <div className="flex flex-wrap gap-3 mb-3">
+      <div className="flex flex-wrap gap-6 mb-3">
         {value.map((denom, i) => {
           const color = colors[i] ?? 'white';
           return (
@@ -117,7 +117,7 @@ export function ChipDenominationsInput({ value, colors, onChange }: ChipDenomina
                 <button
                   type="button"
                   onClick={() => remove(denom)}
-                  className="text-[var(--color-muted)] hover:text-[var(--color-danger)] text-xs leading-none cursor-pointer"
+                  className="text-[var(--color-muted)] hover:text-[var(--color-danger)] text-base leading-none cursor-pointer px-1"
                   aria-label={`Remove ${denom}`}
                 >
                   ×
