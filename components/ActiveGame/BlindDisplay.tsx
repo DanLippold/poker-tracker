@@ -5,6 +5,25 @@ interface BlindDisplayProps {
 }
 
 export function BlindDisplay({ level }: BlindDisplayProps) {
+  if (level.isBreak) {
+    return (
+      <div className="text-center">
+        <div className="text-sm font-medium text-[var(--color-muted)] uppercase tracking-widest mb-4">
+          Intermission
+        </div>
+        <div
+          className="text-6xl font-mono font-black uppercase tracking-widest"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          Break
+        </div>
+        <div className="mt-4 text-sm text-[var(--color-muted)]">
+          Blinds resume after the break
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="text-center">
       <div className="text-sm font-medium text-[var(--color-muted)] uppercase tracking-widest mb-4">
