@@ -1,14 +1,8 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useSpeak } from 'react-text-to-speech';
 
 export function useTTS() {
-  const speak = useCallback((text: string) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(utterance);
-  }, []);
-
+  const { speak } = useSpeak();
   return { speak };
 }
