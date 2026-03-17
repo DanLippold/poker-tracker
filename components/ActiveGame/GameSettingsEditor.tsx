@@ -14,6 +14,7 @@ interface GameSettingsEditorProps {
 export function GameSettingsEditor({ game, onSave, onClose }: GameSettingsEditorProps) {
   const [gameName, setGameName] = useState(game.name);
   const [schedule, setSchedule] = useState<BlindLevel[]>(game.config.schedule);
+  const [ttsNarrationEnabled, setTtsNarrationEnabled] = useState(game.config.ttsNarrationEnabled ?? false);
 
   function handleSave() {
     const currentLevelIndex = Math.min(game.state.currentLevelIndex, schedule.length - 1);
@@ -24,6 +25,7 @@ export function GameSettingsEditor({ game, onSave, onClose }: GameSettingsEditor
       config: {
         ...game.config,
         schedule,
+        ttsNarrationEnabled,
       },
       state: {
         ...game.state,
@@ -69,6 +71,26 @@ export function GameSettingsEditor({ game, onSave, onClose }: GameSettingsEditor
               onChange={(e) => setGameName(e.target.value)}
               className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-accent)]"
             />
+          </div>
+
+          {/* Voice narration toggle */}
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">Voice narration</label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={ttsNarrationEnabled}
+              onClick={() => setTtsNarrationEnabled((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+                ttsNarrationEnabled ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border)]'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  ttsNarrationEnabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Round editor */}
