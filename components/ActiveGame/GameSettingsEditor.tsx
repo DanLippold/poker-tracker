@@ -14,7 +14,7 @@ interface GameSettingsEditorProps {
 export function GameSettingsEditor({ game, onSave, onClose }: GameSettingsEditorProps) {
   const [gameName, setGameName] = useState(game.name);
   const [schedule, setSchedule] = useState<BlindLevel[]>(game.config.schedule);
-  const [ttsNarrationEnabled, setTtsNarrationEnabled] = useState(game.config.ttsNarrationEnabled ?? false);
+  const [ttsNarrationEnabled, setTtsNarrationEnabled] = useState(game.config.ttsNarrationEnabled ?? true);
 
   function handleSave() {
     const currentLevelIndex = Math.min(game.state.currentLevelIndex, schedule.length - 1);

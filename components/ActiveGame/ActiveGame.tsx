@@ -80,7 +80,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
     const current = gameRef.current;
     if (current) {
       const nextIndex = current.state.currentLevelIndex + 1;
-      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled) {
+      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled !== false) {
         speak(buildNarrationText(current.config.schedule[nextIndex]));
       }
     }
@@ -144,7 +144,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
     const current = gameRef.current;
     if (current) {
       const nextIndex = current.state.currentLevelIndex + 1;
-      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled) {
+      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled !== false) {
         speak(buildNarrationText(current.config.schedule[nextIndex]));
       }
     }

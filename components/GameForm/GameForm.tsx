@@ -69,6 +69,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   const [customSchedule, setCustomSchedule] = useState<BlindLevel[] | null>(
     initialConfig?.schedule ?? null,
   );
+  const [ttsNarrationEnabled, setTtsNarrationEnabled] = useState(true);
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [importError, setImportError] = useState('');
   const [namePlaceholder, setNamePlaceholder] = useState('');
@@ -161,6 +162,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
         breakDurationMinutes,
         anteStartLevel: anteEnabled ? anteStartLevel : null,
         schedule,
+        ttsNarrationEnabled,
       },
       state: {
         currentLevelIndex: 0,
@@ -413,6 +415,26 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
           </Card>
         )}
         {errors.schedule && <p className="text-[var(--color-danger)] text-xs">{errors.schedule}</p>}
+
+        {/* Voice Narration */}
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Voice narration</label>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={ttsNarrationEnabled}
+            onClick={() => setTtsNarrationEnabled((v) => !v)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+              ttsNarrationEnabled ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border)]'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                ttsNarrationEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
 
         <div className="flex gap-3">
           <Button type="submit" size="lg" className="flex-1">
