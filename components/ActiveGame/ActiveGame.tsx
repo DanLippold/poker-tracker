@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loadGame, saveGame } from '@/lib/storage';
-import { Game } from '@/lib/types';
+import { Game, BlindLevel } from '@/lib/types';
 import { useTimer } from '@/hooks/useTimer';
 import { useSound } from '@/hooks/useSound';
+import { useTTS } from '@/hooks/useTTS';
 import { BlindDisplay } from './BlindDisplay';
 import { CountdownTimer } from './CountdownTimer';
 import { NextLevelPreview } from './NextLevelPreview';
@@ -26,6 +27,8 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showFiveMinWarning, setShowFiveMinWarning] = useState(false);
   const { playLevelUp, playWarning, playFiveMinuteWarning, initAudio } = useSound();
+  const { speak } = useTTS();
+  const gameRef = useRef<Game | null>(null);
 
   useEffect(() => {
     const g = loadGame(id);
@@ -41,6 +44,22 @@ export function ActiveGame({ id }: ActiveGameProps) {
     saveGame(updated);
     setGame(updated);
   }, []);
+
+  useEffect(() => {
+    gameRef.current = game;
+  }, [game]);
+
+  function buildNarrationText(level: BlindLevel): string {
+    if (level.isBreak) {
+      const mins = Math.round(level.durationSeconds / 60);
+      return `A ${mins} minute break has started.`;
+    }
+    const base = `The next blind level is starting. Small blind is ${level.smallBlind}, big blind is ${level.bigBlind}.`;
+    if (level.ante > 0) {
+      return `The next blind level is starting. Small blind is ${level.smallBlind}, big blind is ${level.bigBlind}. Ante is ${level.ante}.`;
+    }
+    return base;
+  }
 
   const handleTick = useCallback((newRemaining: number) => {
     setGame((prev) => {
@@ -58,6 +77,13 @@ export function ActiveGame({ id }: ActiveGameProps) {
 
   const handleLevelUp = useCallback(() => {
     playLevelUp();
+    const current = gameRef.current;
+    if (current) {
+      const nextIndex = current.state.currentLevelIndex + 1;
+      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled) {
+        speak(buildNarrationText(current.config.schedule[nextIndex]));
+      }
+    }
     setGame((prev) => {
       if (!prev) return prev;
       const nextIndex = prev.state.currentLevelIndex + 1;
@@ -83,7 +109,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       saveGame(updated);
       return updated;
     });
-  }, [playLevelUp]);
+  }, [playLevelUp, speak]);
 
   const handlePause = useCallback(() => {
     setGame((prev) => {
@@ -115,6 +141,13 @@ export function ActiveGame({ id }: ActiveGameProps) {
   }, [initAudio]);
 
   const handleSkip = useCallback(() => {
+    const current = gameRef.current;
+    if (current) {
+      const nextIndex = current.state.currentLevelIndex + 1;
+      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled) {
+        speak(buildNarrationText(current.config.schedule[nextIndex]));
+      }
+    }
     setGame((prev) => {
       if (!prev) return prev;
       const nextIndex = prev.state.currentLevelIndex + 1;
@@ -140,7 +173,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       saveGame(updated);
       return updated;
     });
-  }, []);
+  }, [speak]);
 
   const handleSettingsSave = useCallback((updated: Game) => {
     persist(updated);

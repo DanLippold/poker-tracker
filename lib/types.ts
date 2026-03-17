@@ -15,6 +15,7 @@ export interface GameConfig {
   breakDurationMinutes?: number;
   anteStartLevel: number | null;
   schedule: BlindLevel[];
+  ttsNarrationEnabled?: boolean;
 }
 
 export interface GameState {
