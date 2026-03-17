@@ -152,6 +152,10 @@ export function ActiveGame({ id }: ActiveGameProps) {
     setShowFiveMinWarning(true);
   }, [playFiveMinuteWarning]);
 
+  const handleDismissFiveMinWarning = useCallback(() => {
+    setShowFiveMinWarning(false);
+  }, []);
+
   function handleExportSettings() {
     if (!game) return;
     const payload = {
@@ -268,7 +272,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
 
       {/* Five-minute warning overlay */}
       {showFiveMinWarning && (
-        <FiveMinuteWarning onDismiss={() => setShowFiveMinWarning(false)} />
+        <FiveMinuteWarning onDismiss={handleDismissFiveMinWarning} />
       )}
     </div>
   );
