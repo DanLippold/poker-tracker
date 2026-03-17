@@ -25,8 +25,8 @@ export function FiveMinuteWarning({ onDismiss }: FiveMinuteWarningProps) {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const exitTimer = setTimeout(() => setExiting(true), 44400);
-    const dismissTimer = setTimeout(() => onDismiss(), 45000);
+    const exitTimer = setTimeout(() => setExiting(true), 29400);
+    const dismissTimer = setTimeout(() => onDismiss(), 30000);
     return () => {
       clearTimeout(exitTimer);
       clearTimeout(dismissTimer);
