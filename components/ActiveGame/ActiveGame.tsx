@@ -29,6 +29,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const { playLevelUp, playWarning, playFiveMinuteWarning, initAudio } = useSound();
   const { speak } = useTTS();
   const gameRef = useRef<Game | null>(null);
+  const prevLevelIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     const g = loadGame(id);
@@ -61,6 +62,19 @@ export function ActiveGame({ id }: ActiveGameProps) {
     return base;
   }
 
+  // Narrate the level that just became active whenever currentLevelIndex changes
+  useEffect(() => {
+    if (!game || game.status === 'completed') return;
+    const { currentLevelIndex } = game.state;
+    if (prevLevelIndexRef.current !== null && prevLevelIndexRef.current !== currentLevelIndex) {
+      if (game.config.ttsNarrationEnabled !== false) {
+        const level = game.config.schedule[currentLevelIndex];
+        if (level) speak(buildNarrationText(level));
+      }
+    }
+    prevLevelIndexRef.current = currentLevelIndex;
+  }, [game, speak]);
+
   const handleTick = useCallback((newRemaining: number) => {
     setGame((prev) => {
       if (!prev) return prev;
@@ -77,13 +91,6 @@ export function ActiveGame({ id }: ActiveGameProps) {
 
   const handleLevelUp = useCallback(() => {
     playLevelUp();
-    const current = gameRef.current;
-    if (current) {
-      const nextIndex = current.state.currentLevelIndex + 1;
-      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled !== false) {
-        speak(buildNarrationText(current.config.schedule[nextIndex]));
-      }
-    }
     setGame((prev) => {
       if (!prev) return prev;
       const nextIndex = prev.state.currentLevelIndex + 1;
@@ -109,7 +116,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       saveGame(updated);
       return updated;
     });
-  }, [playLevelUp, speak]);
+  }, [playLevelUp]);
 
   const handlePause = useCallback(() => {
     setGame((prev) => {
@@ -141,13 +148,6 @@ export function ActiveGame({ id }: ActiveGameProps) {
   }, [initAudio]);
 
   const handleSkip = useCallback(() => {
-    const current = gameRef.current;
-    if (current) {
-      const nextIndex = current.state.currentLevelIndex + 1;
-      if (nextIndex < current.config.schedule.length && current.config.ttsNarrationEnabled !== false) {
-        speak(buildNarrationText(current.config.schedule[nextIndex]));
-      }
-    }
     setGame((prev) => {
       if (!prev) return prev;
       const nextIndex = prev.state.currentLevelIndex + 1;
@@ -173,7 +173,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       saveGame(updated);
       return updated;
     });
-  }, [speak]);
+  }, []);
 
   const handleSettingsSave = useCallback((updated: Game) => {
     persist(updated);
