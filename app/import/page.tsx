@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { GameForm } from '@/components/GameForm/GameForm';
 import { GameConfig } from '@/lib/types';
 
-export default function ImportPage() {
+function ImportContent() {
   const searchParams = useSearchParams();
 
   const { config, error } = useMemo(() => {
@@ -41,4 +41,12 @@ export default function ImportPage() {
   }
 
   return <GameForm initialConfig={config!} />;
+}
+
+export default function ImportPage() {
+  return (
+    <Suspense>
+      <ImportContent />
+    </Suspense>
+  );
 }
