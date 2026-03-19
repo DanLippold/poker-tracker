@@ -73,6 +73,7 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [importError, setImportError] = useState('');
   const [namePlaceholder, setNamePlaceholder] = useState('');
+  const [shareCopied, setShareCopied] = useState(false);
 
   // Compute the name placeholder client-side to avoid SSR timezone mismatch
   useEffect(() => {
@@ -197,6 +198,26 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
     a.download = `${payload.name.replace(/\s+/g, '-').toLowerCase()}-settings.json`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function handleShareSettings() {
+    const payload = {
+      version: 1,
+      name: name.trim() || 'Poker Game',
+      startingChips,
+      chipDenominations,
+      chipColors,
+      blindDurationMinutes,
+      breakDurationMinutes,
+      anteStartLevel: anteEnabled ? anteStartLevel : null,
+      schedule: displaySchedule,
+    };
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    const url = `${window.location.origin}/import?settings=${encoded}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
   }
 
   function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -441,9 +462,14 @@ export function GameForm({ initialConfig }: GameFormProps = {}) {
             Create Game
           </Button>
           {displaySchedule.length > 0 && (
-            <Button type="button" variant="secondary" size="lg" onClick={handleExportSettings}>
-              Export JSON
-            </Button>
+            <>
+              <Button type="button" variant="secondary" size="lg" onClick={handleShareSettings}>
+                {shareCopied ? 'Copied!' : 'Share'}
+              </Button>
+              <Button type="button" variant="secondary" size="lg" onClick={handleExportSettings}>
+                Export JSON
+              </Button>
+            </>
           )}
         </div>
       </form>
