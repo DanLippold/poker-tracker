@@ -27,15 +27,12 @@ export function useTimer({ remainingSeconds, isPaused, onTick, onLevelUp, onWarn
     if (isPausedRef.current) return;
 
     const now = Date.now();
-    if (lastTickAtRef.current === null) {
-      lastTickAtRef.current = now;
-      return;
-    }
+    if (lastTickAtRef.current === null) return;
 
     const elapsed = Math.floor((now - lastTickAtRef.current) / 1000);
     if (elapsed < 1) return;
 
-    lastTickAtRef.current = now;
+    lastTickAtRef.current += elapsed * 1000;
     const newRemaining = Math.max(0, remainingRef.current - elapsed);
 
     // Five-minute warning
