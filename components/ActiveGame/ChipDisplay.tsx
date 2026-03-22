@@ -20,8 +20,8 @@ export function PokerChip({ value, color, size = 52 }: PokerChipProps) {
   return (
     <div
       style={{
-        width: size,
-        height: size,
+        width: `clamp(${size}px, ${(size / 1024) * 100}vw, ${size * 2}px)`,
+        height: `clamp(${size}px, ${(size / 1024) * 100}vw, ${size * 2}px)`,
         borderRadius: '50%',
         background: color,
         border: '3px solid rgba(255,255,255,0.5)',
@@ -29,7 +29,7 @@ export function PokerChip({ value, color, size = 52 }: PokerChipProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize,
+        fontSize: `clamp(${fontSize}px, ${(fontSize / 1024) * 100}vw, ${fontSize * 2}px)`,
         fontWeight: 'bold',
         color: textColor,
         flexShrink: 0,
@@ -51,7 +51,7 @@ export function ChipDisplay({ denominations, colors }: ChipDisplayProps) {
   if (!denominations.length) return null;
 
   return (
-    <div className="flex gap-3 items-center justify-center flex-wrap">
+    <div className="flex gap-3 lg:gap-5 xl:gap-7 items-center justify-center flex-wrap">
       {denominations.map((denom, i) => (
         <PokerChip key={denom} value={denom} color={colors[i] ?? 'white'} size={52} />
       ))}

@@ -17,11 +17,11 @@ export function CountdownTimer({ remainingSeconds, isPaused }: CountdownTimerPro
 
   return (
     <div className={`text-center ${pulseClass}`}>
-      <div className={`text-7xl font-mono font-bold tabular-nums ${colorClass}`}>
+      <div className={`text-7xl lg:text-8xl xl:text-9xl 2xl:text-[11rem] font-mono font-bold tabular-nums ${colorClass}`}>
         {formatTime(remainingSeconds)}
       </div>
       {isPaused && (
-        <div className="text-sm text-[var(--color-muted)] mt-2 uppercase tracking-widest">
+        <div className="text-sm lg:text-base xl:text-lg text-[var(--color-muted)] mt-2 uppercase tracking-widest">
           Paused
         </div>
       )}
