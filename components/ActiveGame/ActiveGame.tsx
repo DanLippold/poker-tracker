@@ -257,7 +257,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center gap-10 px-4 py-12">
+      <main className="flex-1 flex flex-col items-center justify-center gap-8 lg:gap-12 xl:gap-16 px-4 py-8 lg:py-16 xl:py-20">
         {isCompleted ? (
           <div className="text-center">
             <div className="text-4xl mb-4">🏆</div>
@@ -287,7 +287,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
             <NextLevelPreview nextLevel={nextLevel} />
 
             {/* Level progress */}
-            <div className="text-xs text-[var(--color-muted)]">
+            <div className="text-xs lg:text-sm xl:text-base text-[var(--color-muted)]">
               Level {currentLevelIndex + 1} of {schedule.length}
             </div>
           </>
