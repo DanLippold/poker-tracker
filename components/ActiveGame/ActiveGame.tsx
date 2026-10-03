@@ -8,6 +8,7 @@ import { Game, BlindLevel } from '@/lib/types';
 import { useTimer } from '@/hooks/useTimer';
 import { useSound } from '@/hooks/useSound';
 import { useTTS } from '@/hooks/useTTS';
+import { useWakeLock } from '@/hooks/useWakeLock';
 import { BlindDisplay } from './BlindDisplay';
 import { CountdownTimer } from './CountdownTimer';
 import { NextLevelPreview } from './NextLevelPreview';
@@ -15,6 +16,7 @@ import { TimerControls } from './TimerControls';
 import { GameSettingsEditor } from './GameSettingsEditor';
 import { ChipDisplay } from './ChipDisplay';
 import { FiveMinuteWarning } from './FiveMinuteWarning';
+import { TubeMan } from './TubeMan';
 
 interface ActiveGameProps {
   id: string;
@@ -220,6 +222,9 @@ export function ActiveGame({ id }: ActiveGameProps) {
     onFiveMinuteWarning: handleFiveMinWarning,
   });
 
+  // Keep the screen awake for the whole game, not just while the clock runs
+  useWakeLock(!!game && game.status !== 'completed');
+
   if (!mounted || !game) return null;
 
   const { schedule } = game.config;
@@ -293,6 +298,9 @@ export function ActiveGame({ id }: ActiveGameProps) {
           </>
         )}
       </main>
+
+      {/* Wacky waving inflatable arm-flailing tube man */}
+      {!isCompleted && <TubeMan />}
 
       {/* Settings editor modal */}
       {showSettings && (
