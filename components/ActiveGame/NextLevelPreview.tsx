@@ -6,24 +6,24 @@ interface NextLevelPreviewProps {
 
 export function NextLevelPreview({ nextLevel }: NextLevelPreviewProps) {
   return (
-    <div className="text-center text-sm lg:text-base xl:text-lg text-[var(--color-muted)]">
+    <div className="text-center text-lg lg:text-2xl xl:text-3xl 2xl:text-4xl text-[var(--color-muted)]">
       {nextLevel ? (
         nextLevel.isBreak ? (
           <>
-            <span className="uppercase tracking-wider text-xs lg:text-sm xl:text-base">Up next </span>
-            <span className="font-mono">Break ({Math.round(nextLevel.durationSeconds / 60)} min)</span>
+            <span className="uppercase tracking-wider text-sm lg:text-lg xl:text-xl 2xl:text-2xl">Up next </span>
+            <span className="font-mono font-semibold text-[var(--color-foreground)]">Break ({Math.round(nextLevel.durationSeconds / 60)} min)</span>
           </>
         ) : (
           <>
-            <span className="uppercase tracking-wider text-xs lg:text-sm xl:text-base">Up next </span>
-            <span className="font-mono">
+            <span className="uppercase tracking-wider text-sm lg:text-lg xl:text-xl 2xl:text-2xl">Up next </span>
+            <span className="font-mono font-semibold text-[var(--color-foreground)]">
               {nextLevel.smallBlind.toLocaleString()} / {nextLevel.bigBlind.toLocaleString()}
               {nextLevel.ante > 0 && ` (ante ${nextLevel.ante.toLocaleString()})`}
             </span>
           </>
         )
       ) : (
-        <span className="uppercase tracking-wider text-xs lg:text-sm xl:text-base">Final Level</span>
+        <span className="uppercase tracking-wider text-sm lg:text-lg xl:text-xl 2xl:text-2xl">Final Level</span>
       )}
     </div>
   );

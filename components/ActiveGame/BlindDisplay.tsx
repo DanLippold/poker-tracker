@@ -43,8 +43,8 @@ export function BlindDisplay({ level }: BlindDisplayProps) {
         </div>
       </div>
       {level.ante > 0 && (
-        <div className="mt-4 lg:mt-6 text-sm lg:text-base xl:text-lg text-[var(--color-muted)]">
-          Ante: <span className="font-mono text-[var(--color-foreground)]">{level.ante.toLocaleString()}</span>
+        <div className="mt-4 lg:mt-6 text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl text-[var(--color-muted)]">
+          Ante: <span className="font-mono font-bold text-[var(--color-foreground)]">{level.ante.toLocaleString()}</span>
         </div>
       )}
     </div>
