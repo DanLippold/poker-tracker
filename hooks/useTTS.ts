@@ -1,6 +1,9 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+// Keep the caption up briefly after the voice finishes so it doesn't vanish mid-read
+const CAPTION_LINGER_MS = 1500;
 
 function getGoogleFemaleVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
@@ -21,12 +24,61 @@ function getGoogleFemaleVoice(): SpeechSynthesisVoice | null {
   return voices.find((v) => v.name.startsWith('Google')) ?? null;
 }
 
+// Rough reading time, used as a safety net when the browser never fires `end`
+function estimateDurationMs(text: string): number {
+  const words = text.trim().split(/\s+/).length;
+  return words * 450 + 1000;
+}
+
 export function useTTS() {
+  // Text currently being narrated, for on-screen captions
+  const [spokenText, setSpokenText] = useState<string | null>(null);
+  // Holding the active utterance also stops Chrome from garbage-collecting it before `end` fires
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimers = useCallback(() => {
+    if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+    if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    clearTimerRef.current = null;
+    fallbackTimerRef.current = null;
+  }, []);
+
+  useEffect(() => clearTimers, [clearTimers]);
+
   const speak = useCallback((text: string) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    if (typeof window === 'undefined') return;
+
+    clearTimers();
+    setSpokenText(text);
+
+    const hideCaption = (delayMs: number) => {
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = setTimeout(() => setSpokenText(null), delayMs);
+    };
+
+    if (!window.speechSynthesis) {
+      hideCaption(estimateDurationMs(text));
+      return;
+    }
 
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
+    utteranceRef.current = utterance;
+
+    const finish = () => {
+      // Ignore events from an utterance that was cancelled by a newer one
+      if (utteranceRef.current !== utterance) return;
+      utteranceRef.current = null;
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+      hideCaption(CAPTION_LINGER_MS);
+    };
+    utterance.onend = finish;
+    utterance.onerror = finish;
+
+    // If speech is blocked or `end` never arrives, still take the caption down
+    fallbackTimerRef.current = setTimeout(finish, estimateDurationMs(text) * 2);
 
     const trySpeak = () => {
       const voice = getGoogleFemaleVoice();
@@ -41,7 +93,7 @@ export function useTTS() {
       // Voices load asynchronously on first call — wait for them
       window.speechSynthesis.addEventListener('voiceschanged', trySpeak, { once: true });
     }
-  }, []);
+  }, [clearTimers]);
 
-  return { speak };
+  return { speak, spokenText };
 }

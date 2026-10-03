@@ -5,16 +5,33 @@
  * inside the one below it and rotates around its own joint, so the small
  * per-segment wobbles compound into the classic flail.
  */
-export function TubeMan() {
+interface TubeManProps {
+  /** Narration currently being spoken; shown in a speech bubble while set. */
+  speech?: string | null;
+}
+
+export function TubeMan({ speech }: TubeManProps) {
   const body = 'var(--color-danger)';
   const stripe = 'var(--color-accent-gold)';
 
   return (
-    <div
-      aria-hidden="true"
-      className="fixed bottom-0 left-2 z-10 pointer-events-none w-16 sm:w-20 lg:w-28 xl:w-36"
-    >
-      <svg viewBox="-20 0 160 230" className="w-full h-auto overflow-visible">
+    <div className="fixed bottom-0 left-2 z-10 pointer-events-none w-16 sm:w-20 lg:w-28 xl:w-36">
+      {speech && (
+        <div
+          key={speech}
+          role="status"
+          className="speech-bubble absolute left-full bottom-[72%] ml-1 w-48 sm:w-60 lg:w-80 xl:w-96 rounded-2xl px-3 py-2 lg:px-5 lg:py-3 bg-[var(--color-foreground)] text-[var(--color-background)] text-xs sm:text-sm lg:text-lg xl:text-xl font-medium leading-snug shadow-lg"
+        >
+          {speech}
+          {/* Tail pointing down toward the tube man's head */}
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-1.5 left-3 w-4 h-4 lg:w-5 lg:h-5 rotate-45 bg-[var(--color-foreground)]"
+          />
+        </div>
+      )}
+
+      <svg aria-hidden="true" viewBox="-20 0 160 230" className="w-full h-auto overflow-visible">
         {/* Fan base */}
         <rect x="38" y="204" width="44" height="22" rx="4" fill="var(--color-surface)" stroke="var(--color-border)" strokeWidth="2" />
         <rect x="44" y="210" width="32" height="4" rx="2" fill="var(--color-border)" />

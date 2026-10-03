@@ -29,7 +29,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showFiveMinWarning, setShowFiveMinWarning] = useState(false);
   const { playLevelUp, playWarning, playFiveMinuteWarning, initAudio } = useSound();
-  const { speak } = useTTS();
+  const { speak, spokenText } = useTTS();
   const gameRef = useRef<Game | null>(null);
   const prevLevelIndexRef = useRef<number | null>(null);
 
@@ -300,7 +300,7 @@ export function ActiveGame({ id }: ActiveGameProps) {
       </main>
 
       {/* Wacky waving inflatable arm-flailing tube man */}
-      {!isCompleted && <TubeMan />}
+      {!isCompleted && <TubeMan speech={spokenText} />}
 
       {/* Settings editor modal */}
       {showSettings && (

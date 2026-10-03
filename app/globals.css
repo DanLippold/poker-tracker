@@ -142,3 +142,15 @@ body {
 .tube-forearm-l { animation: tube-forearm-flop 0.35s ease-in-out infinite alternate; }
 .tube-forearm-r { animation: tube-forearm-flop 0.4s ease-in-out -0.15s infinite alternate; }
 .tube-pupil { animation: tube-pupil-dart 0.9s steps(1) infinite; }
+
+/* Narration speech bubble pops out from the tube man's head */
+@keyframes speech-bubble-pop {
+  0%   { opacity: 0; transform: translate(-12px, 12px) scale(0.6); }
+  70%  { opacity: 1; transform: translate(0, 0) scale(1.05); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+.speech-bubble {
+  transform-origin: bottom left;
+  animation: speech-bubble-pop 0.3s ease-out both;
+}
